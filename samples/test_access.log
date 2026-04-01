@@ -1,3 +1,6 @@
-2026-04-01 10:00:01 INFO: User login from 192.168.1.5
-2026-04-01 10:05:20 WARNING: Suspicious connection from 45.33.2.14
-2026-04-01 10:10:00 ERROR: Failed password attempt from 10.0.0.1
+2026-04-01 10:00:01 [INFO] Web server started.
+2026-04-01 10:05:22 [WARNING] Unrecognized login attempt from 192.168.1.105
+2026-04-01 10:10:45 [CRITICAL] Malicious file downloaded from http://evil-site.net/malware.exe
+2026-04-01 10:11:00 [ALERT] File MD5 hash detected: 44d88612fea8a8f36de82e1278abbb03
+2026-04-01 10:12:30 [INFO] Connection blocked from 45.33.2.14
+2026-04-01 10:15:00 [INFO] Task finished for 8.8.8.8
