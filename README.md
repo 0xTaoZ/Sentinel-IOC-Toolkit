@@ -1,39 +1,57 @@
 # Sentinel-IOC-Toolkit 🛡️
 
-### Why I built this?
-As a Blue Team student, I realized that manual log analysis is a pain. When an alert hits, you waste 10 minutes just copying and pasting IPs into VirusTotal. I wanted a tool that does the "dirty work" for me. 
-
-**Sentinel-IOC-Toolkit** is my project to bridge the gap between Python scripts and a usable security tool.
+A simple tool to automate IOC (IP, URL, Hash) extraction from logs.
 
 ---
 
-## 🛠️ The Logic (How it works)
-The project is split into two parts:
-1. **Python Engine:** A fast script to "grab" IPs, URLs, and Hashes from any messy text file using Regular Expressions (Regex).
-2. **Java Interface:** A clean dashboard to manage these threats. Instead of looking at a black terminal, I want to see a clear table with risk levels.
+## Why I built this
 
-### Current Features
-- **Fast IOC Extraction:** No more manual searching.
-- **Threat Tagging:** Automatically identifies if a string is an IP or a URL.
-- **Blue Team Focus:** Designed for incident responders, not just developers.
+As a Blue Team student, I noticed that manual log analysis takes time and is repetitive.  
+For example, when an alert appears, you often need to copy IPs and check them manually on platforms like VirusTotal.
+
+This project is my attempt to reduce that manual work and better understand how log analysis works in practice.
+
+---
+
+## 🛠️ How it works
+
+The project is split into two parts:
+
+**Python Engine**
+- Extracts IPs, URLs, and hashes from log files using regex
+- Outputs results into JSON format
+
+**Java Interface (in progress)**
+- Displays extracted data in a simple table
+- Helps to quickly see which entries might be suspicious
+
+---
+
+## Current Features
+
+- Extract IP addresses from raw logs
+- Basic detection of URLs / strings
+- JSON output for further processing
 
 ---
 
 ## 📂 Project Structure
-- `/python-backend`: Contains the core logic for log parsing.
-- `/java-frontend`: The GUI part (work in progress).
-- `/samples`: Real-world log samples for testing.
+
+/python-backend – log parsing logic  
+/java-frontend – GUI (in progress)  
+/samples – test log files  
 
 ---
 
 ## 📅 Roadmap
-- [x] Create project structure and README.
-- [ ] Finish Python Regex engine for IP extraction.
-- [ ] Connect to AbuseIPDB API for real-time scoring.
-- [ ] Build the Java Swing/JavaFX dashboard.
+
+- [x] Create project structure and README  
+- [ ] Improve regex (IPv4 / IPv6)  
+- [ ] Connect to AbuseIPDB API  
+- [ ] Add simple risk scoring  
+- [ ] Build Java GUI  
 
 ---
-
 ## 👨‍💻 Author
 **Tao(0xTaoZ)**
-*Cybersecurity student*
+Cybersecurity student | Aspiring Blue Team
