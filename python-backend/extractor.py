@@ -2,10 +2,13 @@ import re
 import json
 import os
 
-# --- 1. Rules to find threats (IOCs) ---
+# --- 1. Rules to find threat (IOCs) ---
 # These are like search filters for IPs, Links, and File Hashes
+# added "ipv6" to catch more advanced hacker addresses
 PATTERNS = {
     "ipv4": r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b',
+    # This is the IPv6 pattern - it looks messy but it works for hex addresses
+    "ipv6": r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))',
     "url": r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+[/\w\.-]*',
     "md5": r'\b[a-fA-F0-9]{32}\b',
     "sha256": r'\b[a-fA-F0-9]{64}\b'
