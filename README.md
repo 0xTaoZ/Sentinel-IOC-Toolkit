@@ -46,7 +46,7 @@ The project is split into two parts:
 ## 📅 Roadmap
 
 - [x] Create project structure and README  
-- [ ] Improve regex (IPv4 / IPv6)  
+- [x] Improve regex (IPv4 / IPv6)  
 - [ ] Connect to AbuseIPDB API  
 - [ ] Add simple risk scoring  
 - [ ] Build Java GUI  
