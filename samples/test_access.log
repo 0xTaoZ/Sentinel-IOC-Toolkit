@@ -1,6 +1,28 @@
-2026-04-01 10:00:01 [INFO] Web server started.
-2026-04-01 10:05:22 [WARNING] Unrecognized login attempt from 192.168.1.105
-2026-04-01 10:10:45 [CRITICAL] Malicious file downloaded from http://evil-site.net/malware.exe
-2026-04-01 10:11:00 [ALERT] File MD5 hash detected: 44d88612fea8a8f36de82e1278abbb03
-2026-04-01 10:12:30 [INFO] Connection blocked from 45.33.2.14
-2026-04-01 10:15:00 [INFO] Task finished for 8.8.8.8
+# --- Sentinel-IOC Production Simulation Log ---
+# Generated: 2026-04-02
+# Description: Multi-vector attack simulation including noise data.
+
+2026-04-02 08:00:01 [INFO] System boot complete. Kernel version 6.5.0-71-generic.
+2026-04-02 08:05:12 [DEBUG] Cron job 'backup' executed successfully.
+2026-04-02 08:15:45 [WARNING] SSH: Failed password for root from 192.168.1.101 port 54322
+2026-04-02 08:15:47 [WARNING] SSH: Failed password for root from 192.168.1.101 port 54324
+2026-04-02 08:15:50 [WARNING] SSH: Failed password for root from 192.168.1.101 port 54328
+2026-04-02 08:20:00 [INFO] Connection accepted from 8.8.8.8 (Google DNS) - Authorized.
+
+# --- POTENTIAL EXPLOIT DETECTED ---
+2026-04-02 09:10:05 [CRITICAL] WebApp: SQL Injection attempt detected in URL: http://my-secure-app.com/login?id=1' OR '1'='1
+2026-04-02 09:12:30 [ALERT] Nginx: Outbound request to suspicious host: 185.199.108.153
+2026-04-02 09:14:00 [INFO] File 'update.sh' downloaded from http://updates.linux-repo.org/secure/patch.zip
+2026-04-02 09:15:00 [CRITICAL] Kernel: Unauthorized IPv6 tunnel established: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+
+# --- MALWARE ANALYSIS ENGINE ---
+2026-04-02 09:45:10 [PROCESS] Scanning uploaded file: suspicious_tool.exe
+2026-04-02 09:45:11 [REPORT] MD5: 44d88612fea8a8f36de82e1278abbb03 (Match found in Blacklist)
+2026-04-02 09:45:12 [REPORT] SHA256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+2026-04-02 09:45:15 [ACTION] Process quarantined. Sending alert to SOC Analyst: Tao.
+
+# --- NOISE DATA ---
+2026-04-02 10:00:00 [DEBUG] Memory usage: 15%. CPU load: 0.05.
+2026-04-02 10:05:00 [INFO] User 'tao' logged in from 10.0.0.5 via web-portal.
+2026-04-02 10:30:45 [ERROR] Connection timed out to backup server: 10.1.1.200
+2026-04-02 10:45:00 [ALERT] Unusual traffic pattern detected for URL: http://cdn.globally-distributed.com/assets/img/logo.png
