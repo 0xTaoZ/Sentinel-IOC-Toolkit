@@ -2,13 +2,13 @@ import re
 import json
 import os
 import requests
-from dotenv import load_dotenv # 用來安全地讀取你的 API Key
+from dotenv import load_dotenv
 
-# 1. 初始化設定：讀取 .env 檔案中的 API Key
+# Load API Key from .env file
 load_dotenv()
 API_KEY = os.getenv("ABUSEIPDB_KEY")
 
-# --- 2. Rules to find threat (IOCs) ---
+# --- 1. Patterns to identify Indicators of Compromise (IOCs) ---
 PATTERNS = {
     "ipv4": r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b',
     "ipv6": r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))',
@@ -26,74 +26,71 @@ class SentinelEngine:
         }
 
     def check_ip_reputation(self, ip_address):
-        """ 向 AbuseIPDB 查詢該 IP 是否惡意 (API Enrichment) """
+        """ Fetch risk score from AbuseIPDB API """
         if not API_KEY:
-            return {"error": "No API Key found"}
+            return {"error": "API Key is missing"}
 
-        url = 'https://api.abuseipdb.com/api/v2/check'
+        api_url = 'https://api.abuseipdb.com/api/v2/check'
         params = {'ipAddress': ip_address, 'maxAgeInDays': '90'}
         headers = {'Accept': 'application/json', 'Key': API_KEY}
 
         try:
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(api_url, headers=headers, params=params)
             if response.status_code == 200:
                 data = response.json()
                 return {
-                    "score": data['data']['abuseConfidenceScore'], # 0-100 的風險分
-                    "country": data['data']['countryCode']         # 國家代碼
+                    "score": data['data']['abuseConfidenceScore'],
+                    "country": data['data']['countryCode']
                 }
-            return {"error": f"API Error {response.status_code}"}
+            return {"error": f"API responded with code {response.status_code}"}
         except Exception as e:
             return {"error": str(e)}
 
     def start_scan(self):
-        """ 讀取文件，識別 IOC，並對 IPv4 進行聯網分析 """
+        """ Scan the log file and enrich IPv4 findings with API data """
         try:
             with open(self.file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
                 
                 for name, rule in PATTERNS.items():
-                    found = list(set(re.findall(rule, content)))
+                    found_items = list(set(re.findall(rule, content)))
                     
-                    # 關鍵升級：如果是 IPv4，我們不只列出來，還要聯網查它！
                     if name == "ipv4":
-                        enriched_ips = []
-                        for ip in found:
-                            print(f"[*] Checking reputation for: {ip}")
-                            rep = self.check_ip_reputation(ip)
-                            enriched_ips.append({
+                        # If IPv4 is found, query the API for reputation
+                        enriched_list = []
+                        for ip in found_items:
+                            print(f"[*] Checking IP reputation: {ip}")
+                            analysis = self.check_ip_reputation(ip)
+                            enriched_list.append({
                                 "value": ip,
-                                "analysis": rep
+                                "analysis": analysis
                             })
-                        self.report["findings"][name] = enriched_ips
+                        self.report["findings"][name] = enriched_list
                     else:
-                        self.report["findings"][name] = found
+                        self.report["findings"][name] = found_items
             
             return self.report
         except Exception as e:
             return {"error": str(e)}
 
-    def save_to_json(self, output_name="result.json"):
-        with open(output_name, 'w') as f:
+    def save_results(self, output_file="result.json"):
+        """ Export the final report to a JSON file """
+        with open(output_file, 'w') as f:
             json.dump(self.report, f, indent=4)
-        print(f"[+] Done! Analysis saved to {output_name}")
+        print(f"[+] Scan complete. Data saved to: {output_file}")
 
-# --- 3. Run the tool ---
+# --- Execution ---
 if __name__ == "__main__":
-    target_log = "../samples/test_access.log"
+    test_log = "../samples/test_access.log"
     
-    if os.path.exists(target_log):
-        my_tool = SentinelEngine(target_log)
+    if os.path.exists(test_log):
+        engine = SentinelEngine(test_log)
+        print("--- Sentinel-IOC Analysis Starting ---")
         
-        # 啟動掃描（包含聯網查詢）
-        print("[*] Sentinel-IOC Engine Starting...")
-        data = my_tool.start_scan()
+        scan_data = engine.start_scan()
+        print(json.dumps(scan_data, indent=4))
         
-        # 打印結果到屏幕
-        print(json.dumps(data, indent=4))
-        
-        # 保存結果文件
-        my_tool.save_to_json()
+        engine.save_results()
     else:
-        print(f"[!] Error: Cannot find {target_log}")
+        print(f"[!] Critical Error: {test_log} not found.")
 
