@@ -81,18 +81,4 @@ def check_ip_reputation(ip_address, api_key):
         'Key': api_key
     }
 
-    try:
-        # Send the request to the website
-        response = requests.get(url, headers=headers, params=params)
-        
-        if response.status_code == 200:
-            data = response.json()
-            # We want the "abuseConfidenceScore" (0-100)
-            score = data['data']['abuseConfidenceScore']
-            country = data['data']['countryCode']
-            return {"score": score, "country": country}
-        else:
-            return {"error": "API Request Failed"}
-            
-    except Exception as e:
-        return {"error": str(e)}
+
