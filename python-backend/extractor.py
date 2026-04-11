@@ -90,7 +90,4 @@ if __name__ == "__main__":
         scan_data = engine.start_scan()
         print(json.dumps(scan_data, indent=4))
         
-        engine.save_results()
-    else:
-        print(f"[!] Critical Error: {test_log} not found.")
 
