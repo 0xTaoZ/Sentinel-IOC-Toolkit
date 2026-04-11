@@ -85,9 +85,7 @@ if __name__ == "__main__":
     
     if os.path.exists(test_log):
         engine = SentinelEngine(test_log)
-        print("--- Sentinel-IOC Analysis Starting ---")
-        
-        scan_data = engine.start_scan()
+        print("-
         print(json.dumps(scan_data, indent=4))
         
 
