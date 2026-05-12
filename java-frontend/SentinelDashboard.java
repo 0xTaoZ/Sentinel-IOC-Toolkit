@@ -1,45 +1,56 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 /**
  * Sentinel-IOC GUI Dashboard
- * Purpose: Display security scan results in a professional table.
+ * This class builds the visual window to display security findings.
  */
-public class SentinelGUI {
+public class SentinelDashboard {
 
     public static void main(String[] args) {
-        // 1. Create the main Window (Frame)
-        JFrame frame = new JFrame("Sentinel-IOC Command Center");
+        // 1. Create the main window (Frame)
+        JFrame frame = new JFrame("Sentinel-IOC v0.1 - Security Command Center");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
+        frame.setSize(800, 500);
 
-        // 2. Create Title Label
-        JLabel title = new JLabel("Security Scan Analysis Report", SwingConstants.CENTER);
-        title.setFont(new Font("Arial", Font.BOLD, 20));
-        title.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // 2. Create a Title Header
+        JLabel header = new JLabel("IOC Analysis & Threat Intelligence Report", SwingConstants.CENTER);
+        header.setFont(new Font("Arial", Font.BOLD, 18));
+        header.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
 
         // 3. Define Table Columns
-        String[] columns = {"IOC Type", "Value", "Risk Level"};
+        // These match the data we extracted in Python
+        String[] columns = {"IOC Value", "Type", "Risk Level", "Country", "Suggested Action"};
 
-        // 4. Sample Data (Next step: Load from result.json)
-        String[][] data = {
-            {"IPv4", "192.168.1.105", "Pending"},
-            {"URL", "http://evil-site.net/malware.exe", "High Risk"},
-            {"MD5", "44d88612fea8a8f36de82e1278abbb03", "Detected"}
-        };
+        // 4. Placeholder Data 
+        // (In the next step, we will make Java read directly from result.json)
+        DefaultTableModel model = new DefaultTableModel(columns, 0);
+        
+        // Let's add some example rows to see how it looks
+        model.addRow(new Object[]{"185.156.177.10", "IPv4", "CRITICAL", "NL", "BLOCK"});
+        model.addRow(new Object[]{"2001:0db8:85a3...", "IPv6", "CLEAN", "Unknown", "NONE"});
+        model.addRow(new Object[]{"http://evil-site.net", "URL", "SUSPICIOUS", "Unknown", "MONITOR"});
 
-        // 5. Create the Table
-        JTable table = new JTable(data, columns);
+        // 5. Create the Table and Scroll Pane
+        JTable table = new JTable(model);
         JScrollPane scrollPane = new JScrollPane(table);
+        
+        // Professional Touch: Change row height
+        table.setRowHeight(25);
 
-        // 6. Layout: Add everything to the frame
+        // 6. Layout: Add components to the window
         frame.setLayout(new BorderLayout());
-        frame.add(title, BorderLayout.NORTH);
+        frame.add(header, BorderLayout.NORTH);
         frame.add(scrollPane, BorderLayout.CENTER);
 
-        // 7. Make the window visible
+        // 7. Status Bar (At the bottom)
+        JLabel statusBar = new JLabel(" Status: Python Analysis Engine - OK | API Connection - OK");
+        statusBar.setPreferredSize(new Dimension(frame.getWidth(), 25));
+        frame.add(statusBar, BorderLayout.SOUTH);
+
+        // 8. Launch!
+        frame.setLocationRelativeTo(null); // Center on screen
         frame.setVisible(true);
     }
 }
