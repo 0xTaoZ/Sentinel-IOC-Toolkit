@@ -48,7 +48,7 @@ The project is split into two parts:
 - [x] Create project structure and README  
 - [x] Improve regex (IPv4 / IPv6)  
 - [x] Connect to AbuseIPDB API  
-- [ ] Add simple risk scoring  
+- [x] Add simple risk scoring  
 - [x] Build Java GUI  
 
 ---
