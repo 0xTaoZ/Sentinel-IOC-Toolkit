@@ -49,7 +49,7 @@ The project is split into two parts:
 - [x] Improve regex (IPv4 / IPv6)  
 - [x] Connect to AbuseIPDB API  
 - [ ] Add simple risk scoring  
-- [ ] Build Java GUI  
+- [x] Build Java GUI  
 
 ---
 ## 👨‍💻 Author
