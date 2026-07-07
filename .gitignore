@@ -58,6 +58,9 @@ cover/
 # Local API credentials
 .env
 
+# Java build output
+*.class
+
 # Django stuff:
 *.log
 local_settings.py
