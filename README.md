@@ -32,6 +32,31 @@ The project is split into two parts:
 - Extract IP addresses from raw logs
 - Basic detection of URLs / strings
 - JSON output for further processing
+- Optional AbuseIPDB enrichment when an API key is configured
+
+---
+
+## Running locally
+
+Install the optional Python dependencies when you want AbuseIPDB enrichment:
+
+```bash
+python3 -m pip install requests python-dotenv
+```
+
+Create a local `.env` file from the example and set your own key:
+
+```bash
+cp .env.example .env
+```
+
+The expected variable name is:
+
+```text
+ABUSEIPDB_API_KEY=YOUR_API_KEY
+```
+
+The extractor can still parse local IOCs without this key; reputation fields will show that no API key is configured.
 
 ---
 
