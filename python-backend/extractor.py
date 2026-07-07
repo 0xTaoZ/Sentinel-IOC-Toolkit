@@ -27,6 +27,16 @@ def is_valid_ipv4(value):
     parts = value.split(".")
     return len(parts) == 4 and all(part.isdigit() and 0 <= int(part) <= 255 for part in parts)
 
+def extract_matches(rule, content):
+    matches = []
+    seen = set()
+    for match in re.finditer(rule, content):
+        value = match.group(0)
+        if value not in seen:
+            matches.append(value)
+            seen.add(value)
+    return matches
+
 class SentinelEngine:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -62,7 +72,7 @@ class SentinelEngine:
             with open(self.file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
                 for name, rule in PATTERNS.items():
-                    found = list(set(re.findall(rule, content)))
+                    found = extract_matches(rule, content)
                     if name == "ipv4":
                         found = [ip for ip in found if is_valid_ipv4(ip)]
                     if name == "ipv4":

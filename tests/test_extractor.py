@@ -49,6 +49,11 @@ class SentinelEngineTests(unittest.TestCase):
 
         self.assertEqual(["10.0.0.5"], [item["value"] for item in report["findings"]["ipv4"]])
 
+    def test_returns_ipv6_matches_as_strings(self):
+        report = self.scan_text("tunnel from 2001:0db8:85a3:0000:0000:8a2e:0370:7334")
+
+        self.assertEqual(["2001:0db8:85a3:0000:0000:8a2e:0370:7334"], report["findings"]["ipv6"])
+
 
 if __name__ == "__main__":
     unittest.main()
