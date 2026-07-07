@@ -1,11 +1,19 @@
 import re
 import json
 import os
-import requests
-from dotenv import load_dotenv
+try:
+    import requests
+except ImportError:
+    requests = None
+
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv():
+        return False
 
 load_dotenv()
-API_KEY = os.getenv("ABUSEIPDB_KEY")
+API_KEY = os.getenv("ABUSEIPDB_API_KEY") or os.getenv("ABUSEIPDB_KEY")
 
 PATTERNS = {
     "ipv4": r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b',
@@ -15,6 +23,10 @@ PATTERNS = {
     "sha256": r'\b[a-fA-F0-9]{64}\b'
 }
 
+def is_valid_ipv4(value):
+    parts = value.split(".")
+    return len(parts) == 4 and all(part.isdigit() and 0 <= int(part) <= 255 for part in parts)
+
 class SentinelEngine:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -23,6 +35,7 @@ class SentinelEngine:
     def check_ip_reputation(self, ip_address):
         """ Fetch reputation data from AbuseIPDB """
         if not API_KEY: return {"error": "No API Key"}
+        if requests is None: return {"error": "requests is not installed"}
         url = 'https://api.abuseipdb.com/api/v2/check'
         headers = {'Accept': 'application/json', 'Key': API_KEY}
         params = {'ipAddress': ip_address, 'maxAgeInDays': '90'}
@@ -50,6 +63,8 @@ class SentinelEngine:
                 content = f.read()
                 for name, rule in PATTERNS.items():
                     found = list(set(re.findall(rule, content)))
+                    if name == "ipv4":
+                        found = [ip for ip in found if is_valid_ipv4(ip)]
                     if name == "ipv4":
                         enriched = []
                         for ip in found:
