@@ -41,7 +41,7 @@ The project is split into two parts:
 Install the optional Python dependencies when you want AbuseIPDB enrichment:
 
 ```bash
-python3 -m pip install requests python-dotenv
+python3 -m pip install -r requirements.txt
 ```
 
 Create a local `.env` file from the example and set your own key:
