@@ -30,6 +30,7 @@ The project is split into two parts:
 ## Current Features
 
 - Extract IP addresses from raw logs
+- Extract bare domains without duplicating hosts already captured as URLs
 - Basic detection of URLs / strings
 - JSON output for further processing
 - Optional AbuseIPDB enrichment when an API key is configured
@@ -57,6 +58,15 @@ ABUSEIPDB_API_KEY=YOUR_API_KEY
 ```
 
 The extractor can still parse local IOCs without this key; reputation fields will show that no API key is configured.
+
+Run the Python parser against the sample log:
+
+```bash
+cd python-backend
+python3 extractor.py
+```
+
+The sample includes IPv4, IPv6, URL, domain, MD5, and SHA256 indicators.
 
 ---
 

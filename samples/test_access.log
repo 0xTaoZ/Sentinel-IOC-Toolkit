@@ -12,6 +12,7 @@
 # --- POTENTIAL EXPLOIT DETECTED ---
 2026-04-02 09:10:05 [CRITICAL] WebApp: SQL Injection attempt detected in URL: http://my-secure-app.com/login?id=1' OR '1'='1
 2026-04-02 09:12:30 [ALERT] Nginx: Outbound request to suspicious host: 185.199.108.153
+2026-04-02 09:13:10 [ALERT] DNS: Suspicious lookup for staging-c2.example.org
 2026-04-02 09:14:00 [INFO] File 'update.sh' downloaded from http://updates.linux-repo.org/secure/patch.zip
 2026-04-02 09:15:00 [CRITICAL] Kernel: Unauthorized IPv6 tunnel established: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
 

@@ -19,8 +19,26 @@ PATTERNS = {
     "ipv4": r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b',
     "ipv6": r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))',
     "url": r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+[/\w\.-]*',
+    "domain": r'(?<!://)\b(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}\b',
     "md5": r'\b[a-fA-F0-9]{32}\b',
     "sha256": r'\b[a-fA-F0-9]{64}\b'
+}
+
+FILE_EXTENSION_SUFFIXES = {
+    "bat",
+    "class",
+    "dll",
+    "exe",
+    "jar",
+    "java",
+    "js",
+    "json",
+    "log",
+    "png",
+    "py",
+    "sh",
+    "txt",
+    "zip",
 }
 
 def is_valid_ipv4(value):
@@ -32,6 +50,22 @@ def extract_matches(rule, content):
     seen = set()
     for match in re.finditer(rule, content):
         value = match.group(0)
+        if value not in seen:
+            matches.append(value)
+            seen.add(value)
+    return matches
+
+def extract_domains(content):
+    url_spans = [match.span() for match in re.finditer(PATTERNS["url"], content)]
+    matches = []
+    seen = set()
+    for match in re.finditer(PATTERNS["domain"], content):
+        start, end = match.span()
+        if any(url_start <= start and end <= url_end for url_start, url_end in url_spans):
+            continue
+        value = match.group(0)
+        if value.rsplit(".", 1)[-1].lower() in FILE_EXTENSION_SUFFIXES:
+            continue
         if value not in seen:
             matches.append(value)
             seen.add(value)
@@ -72,7 +106,7 @@ class SentinelEngine:
             with open(self.file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
                 for name, rule in PATTERNS.items():
-                    found = extract_matches(rule, content)
+                    found = extract_domains(content) if name == "domain" else extract_matches(rule, content)
                     if name == "ipv4":
                         found = [ip for ip in found if is_valid_ipv4(ip)]
                     if name == "ipv4":

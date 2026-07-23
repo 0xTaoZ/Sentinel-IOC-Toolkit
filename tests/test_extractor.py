@@ -54,6 +54,20 @@ class SentinelEngineTests(unittest.TestCase):
 
         self.assertEqual(["2001:0db8:85a3:0000:0000:8a2e:0370:7334"], report["findings"]["ipv6"])
 
+    def test_extracts_bare_domains_without_duplicating_url_hosts(self):
+        report = self.scan_text(
+            "\n".join(
+                [
+                    "dns query for staging-c2.example.org",
+                    "callback http://drop.example.test/payload",
+                    "downloaded file update.sh",
+                    "real IP: 10.0.0.5",
+                ]
+            )
+        )
+
+        self.assertEqual(["staging-c2.example.org"], report["findings"]["domain"])
+
 
 if __name__ == "__main__":
     unittest.main()
