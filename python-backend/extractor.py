@@ -41,6 +41,12 @@ FILE_EXTENSION_SUFFIXES = {
     "zip",
 }
 
+def normalize_defanged_iocs(content):
+    normalized = re.sub(r"\bhxxps://", "https://", content, flags=re.IGNORECASE)
+    normalized = re.sub(r"\bhxxp://", "http://", normalized, flags=re.IGNORECASE)
+    normalized = normalized.replace("[.]", ".")
+    return normalized
+
 def is_valid_ipv4(value):
     parts = value.split(".")
     return len(parts) == 4 and all(part.isdigit() and 0 <= int(part) <= 255 for part in parts)
@@ -104,7 +110,7 @@ class SentinelEngine:
         """ Scan file and perform risk scoring """
         try:
             with open(self.file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+                content = normalize_defanged_iocs(f.read())
                 for name, rule in PATTERNS.items():
                     found = extract_domains(content) if name == "domain" else extract_matches(rule, content)
                     if name == "ipv4":

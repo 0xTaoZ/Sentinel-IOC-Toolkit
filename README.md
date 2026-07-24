@@ -31,6 +31,7 @@ The project is split into two parts:
 
 - Extract IP addresses from raw logs
 - Extract bare domains without duplicating hosts already captured as URLs
+- Normalize common defanged IOCs such as `hxxp://` and `[.]`
 - Basic detection of URLs / strings
 - JSON output for further processing
 - Optional AbuseIPDB enrichment when an API key is configured
@@ -66,7 +67,7 @@ cd python-backend
 python3 extractor.py
 ```
 
-The sample includes IPv4, IPv6, URL, domain, MD5, and SHA256 indicators.
+The sample includes IPv4, IPv6, URL, domain, defanged URL/domain, MD5, and SHA256 indicators.
 
 ---
 

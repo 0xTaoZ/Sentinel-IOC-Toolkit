@@ -68,6 +68,19 @@ class SentinelEngineTests(unittest.TestCase):
 
         self.assertEqual(["staging-c2.example.org"], report["findings"]["domain"])
 
+    def test_normalizes_defanged_urls_and_domains(self):
+        report = self.scan_text(
+            "\n".join(
+                [
+                    "phishing callback hxxp://malware[.]example[.]test/payload",
+                    "dns beacon for c2[.]example[.]org",
+                ]
+            )
+        )
+
+        self.assertEqual(["http://malware.example.test/payload"], report["findings"]["url"])
+        self.assertEqual(["c2.example.org"], report["findings"]["domain"])
+
 
 if __name__ == "__main__":
     unittest.main()

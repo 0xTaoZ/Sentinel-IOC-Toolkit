@@ -58,6 +58,9 @@ cover/
 # Local API credentials
 .env
 
+# Local extractor output
+python-backend/result.json
+
 # Java build output
 *.class
 
