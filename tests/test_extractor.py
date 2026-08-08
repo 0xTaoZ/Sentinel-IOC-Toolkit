@@ -81,6 +81,23 @@ class SentinelEngineTests(unittest.TestCase):
         self.assertEqual(["http://malware.example.test/payload"], report["findings"]["url"])
         self.assertEqual(["c2.example.org"], report["findings"]["domain"])
 
+    def test_extracts_email_iocs_without_counting_mail_domains(self):
+        report = self.scan_text(
+            "\n".join(
+                [
+                    "phishing sender security-alert@phish.example.org",
+                    "reply-to soc.team+case42@example.test",
+                    "callback http://drop.example.test/payload",
+                ]
+            )
+        )
+
+        self.assertEqual(
+            ["security-alert@phish.example.org", "soc.team+case42@example.test"],
+            report["findings"]["email"],
+        )
+        self.assertEqual([], report["findings"]["domain"])
+
 
 if __name__ == "__main__":
     unittest.main()

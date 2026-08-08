@@ -19,6 +19,7 @@ PATTERNS = {
     "ipv4": r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b',
     "ipv6": r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))',
     "url": r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+[/\w\.-]*',
+    "email": r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}\b',
     "domain": r'(?<!://)\b(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}\b',
     "md5": r'\b[a-fA-F0-9]{32}\b',
     "sha256": r'\b[a-fA-F0-9]{64}\b'
@@ -62,12 +63,16 @@ def extract_matches(rule, content):
     return matches
 
 def extract_domains(content):
-    url_spans = [match.span() for match in re.finditer(PATTERNS["url"], content)]
+    excluded_spans = [
+        match.span()
+        for pattern_name in ("url", "email")
+        for match in re.finditer(PATTERNS[pattern_name], content)
+    ]
     matches = []
     seen = set()
     for match in re.finditer(PATTERNS["domain"], content):
         start, end = match.span()
-        if any(url_start <= start and end <= url_end for url_start, url_end in url_spans):
+        if any(span_start <= start and end <= span_end for span_start, span_end in excluded_spans):
             continue
         value = match.group(0)
         if value.rsplit(".", 1)[-1].lower() in FILE_EXTENSION_SUFFIXES:

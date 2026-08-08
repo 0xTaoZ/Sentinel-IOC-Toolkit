@@ -1,6 +1,6 @@
 # Sentinel-IOC-Toolkit 🛡️
 
-A simple tool to automate IOC (IP, URL, Hash) extraction from logs.
+A simple tool to automate IOC (IP, URL, email, domain, and hash) extraction from logs.
 
 ---
 
@@ -18,7 +18,7 @@ This project is my attempt to reduce that manual work and better understand how 
 The project is split into two parts:
 
 **Python Engine**
-- Extracts IPs, URLs, and hashes from log files using regex
+- Extracts IPs, URLs, email addresses, domains, and hashes from log files using regex
 - Outputs results into JSON format
 
 **Java Interface (in progress)**
@@ -31,6 +31,7 @@ The project is split into two parts:
 
 - Extract IP addresses from raw logs
 - Extract bare domains without duplicating hosts already captured as URLs
+- Extract email-address indicators without counting mail domains as separate bare domains
 - Normalize common defanged IOCs such as `hxxp://` and `[.]`
 - Basic detection of URLs / strings
 - JSON output for further processing
@@ -67,7 +68,7 @@ cd python-backend
 python3 extractor.py
 ```
 
-The sample includes IPv4, IPv6, URL, domain, defanged URL/domain, MD5, and SHA256 indicators.
+The sample includes IPv4, IPv6, URL, email, domain, defanged URL/domain, MD5, and SHA256 indicators.
 
 ---
 
