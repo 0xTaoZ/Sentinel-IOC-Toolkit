@@ -22,6 +22,7 @@ PATTERNS = {
     "email": r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}\b',
     "domain": r'(?<!://)\b(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}\b',
     "md5": r'\b[a-fA-F0-9]{32}\b',
+    "sha1": r'\b[a-fA-F0-9]{40}\b',
     "sha256": r'\b[a-fA-F0-9]{64}\b'
 }
 

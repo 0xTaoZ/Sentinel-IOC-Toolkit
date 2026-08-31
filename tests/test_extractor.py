@@ -30,6 +30,7 @@ class SentinelEngineTests(unittest.TestCase):
                 "failed login from 192.168.1.10",
                 "callback http://example.test/dropper.exe",
                 "md5 44d88612fea8a8f36de82e1278abbb03",
+                "sha1 3395856ce81f2b7382dee72602f798b642f14140",
                 "sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             ]
         )
@@ -39,6 +40,7 @@ class SentinelEngineTests(unittest.TestCase):
         self.assertEqual(["192.168.1.10"], [item["value"] for item in report["findings"]["ipv4"]])
         self.assertEqual(["http://example.test/dropper.exe"], report["findings"]["url"])
         self.assertEqual(["44d88612fea8a8f36de82e1278abbb03"], report["findings"]["md5"])
+        self.assertEqual(["3395856ce81f2b7382dee72602f798b642f14140"], report["findings"].get("sha1", []))
         self.assertEqual(
             ["e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"],
             report["findings"]["sha256"],
