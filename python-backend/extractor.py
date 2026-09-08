@@ -23,7 +23,8 @@ PATTERNS = {
     "domain": r'(?<!://)\b(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}\b',
     "md5": r'\b[a-fA-F0-9]{32}\b',
     "sha1": r'\b[a-fA-F0-9]{40}\b',
-    "sha256": r'\b[a-fA-F0-9]{64}\b'
+    "sha256": r'\b[a-fA-F0-9]{64}\b',
+    "cve": r'\b[Cc][Vv][Ee]-[0-9]{4}-[0-9]{4,7}\b'
 }
 
 FILE_EXTENSION_SUFFIXES = {
@@ -83,6 +84,16 @@ def extract_domains(content):
             seen.add(value)
     return matches
 
+def extract_cves(content):
+    matches = []
+    seen = set()
+    for match in re.finditer(PATTERNS["cve"], content):
+        value = match.group(0).upper()
+        if value not in seen:
+            matches.append(value)
+            seen.add(value)
+    return matches
+
 class SentinelEngine:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -118,7 +129,12 @@ class SentinelEngine:
             with open(self.file_path, 'r', encoding='utf-8') as f:
                 content = normalize_defanged_iocs(f.read())
                 for name, rule in PATTERNS.items():
-                    found = extract_domains(content) if name == "domain" else extract_matches(rule, content)
+                    if name == "domain":
+                        found = extract_domains(content)
+                    elif name == "cve":
+                        found = extract_cves(content)
+                    else:
+                        found = extract_matches(rule, content)
                     if name == "ipv4":
                         found = [ip for ip in found if is_valid_ipv4(ip)]
                     if name == "ipv4":

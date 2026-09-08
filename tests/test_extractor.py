@@ -32,6 +32,7 @@ class SentinelEngineTests(unittest.TestCase):
                 "md5 44d88612fea8a8f36de82e1278abbb03",
                 "sha1 3395856ce81f2b7382dee72602f798b642f14140",
                 "sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "exploit attempt mentions CVE-2024-3094",
             ]
         )
 
@@ -45,6 +46,12 @@ class SentinelEngineTests(unittest.TestCase):
             ["e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"],
             report["findings"]["sha256"],
         )
+        self.assertEqual(["CVE-2024-3094"], report["findings"]["cve"])
+
+    def test_normalizes_cve_ids_to_uppercase(self):
+        report = self.scan_text("advisory cve-2021-44228 and duplicate CVE-2021-44228")
+
+        self.assertEqual(["CVE-2021-44228"], report["findings"]["cve"])
 
     def test_ignores_invalid_ipv4_octets(self):
         report = self.scan_text("not an IP: 999.999.999.999\nreal IP: 10.0.0.5")
