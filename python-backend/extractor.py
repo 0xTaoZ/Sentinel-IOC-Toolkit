@@ -97,7 +97,7 @@ def extract_cves(content):
 class SentinelEngine:
     def __init__(self, file_path):
         self.file_path = file_path
-        self.report = {"target_file": os.path.basename(file_path), "findings": {}}
+        self.report = {"target_file": os.path.basename(file_path), "findings": {}, "summary": {}}
 
     def check_ip_reputation(self, ip_address):
         """ Fetch reputation data from AbuseIPDB """
@@ -151,6 +151,14 @@ class SentinelEngine:
                         self.report["findings"][name] = enriched
                     else:
                         self.report["findings"][name] = found
+                counts = {
+                    name: len(values)
+                    for name, values in self.report["findings"].items()
+                }
+                self.report["summary"] = {
+                    "total_indicators": sum(counts.values()),
+                    "counts": counts,
+                }
             return self.report
         except Exception as e: return {"error": str(e)}
 

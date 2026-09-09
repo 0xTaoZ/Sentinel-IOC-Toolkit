@@ -19,7 +19,7 @@ The project is split into two parts:
 
 **Python Engine**
 - Extracts IPs, URLs, email addresses, domains, CVE IDs, and MD5/SHA1/SHA256 hashes from log files using regex
-- Outputs results into JSON format
+- Outputs findings and per-type indicator counts into JSON format
 
 **Java Interface (in progress)**
 - Displays extracted data in a simple table
@@ -34,6 +34,7 @@ The project is split into two parts:
 - Extract email-address indicators without counting mail domains as separate bare domains
 - Extract CVE identifiers from alert text and normalize them to uppercase
 - Extract MD5, SHA1, and SHA256 file hash indicators
+- Summarize how many indicators were found by type
 - Normalize common defanged IOCs such as `hxxp://` and `[.]`
 - Basic detection of URLs / strings
 - JSON output for further processing

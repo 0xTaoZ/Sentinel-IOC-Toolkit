@@ -53,6 +53,23 @@ class SentinelEngineTests(unittest.TestCase):
 
         self.assertEqual(["CVE-2021-44228"], report["findings"]["cve"])
 
+    def test_reports_indicator_summary_counts(self):
+        report = self.scan_text(
+            "\n".join(
+                [
+                    "source 10.0.0.5 downloaded http://example.test/payload",
+                    "hash 44d88612fea8a8f36de82e1278abbb03",
+                    "ticket CVE-2024-3094",
+                ]
+            )
+        )
+
+        self.assertEqual(4, report["summary"]["total_indicators"])
+        self.assertEqual(1, report["summary"]["counts"]["ipv4"])
+        self.assertEqual(1, report["summary"]["counts"]["url"])
+        self.assertEqual(1, report["summary"]["counts"]["md5"])
+        self.assertEqual(1, report["summary"]["counts"]["cve"])
+
     def test_ignores_invalid_ipv4_octets(self):
         report = self.scan_text("not an IP: 999.999.999.999\nreal IP: 10.0.0.5")
 
