@@ -1,6 +1,7 @@
 import re
 import json
 import os
+import argparse
 try:
     import requests
 except ImportError:
@@ -167,11 +168,20 @@ class SentinelEngine:
             json.dump(self.report, f, indent=4)
         print("[+] Analysis complete. JSON report updated with Risk Levels.")
 
-if __name__ == "__main__":
-    target = "../samples/test_access.log"
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Extract IOCs from a log or text file.")
+    parser.add_argument("target", nargs="?", default="../test.txt", help="file to scan")
+    args = parser.parse_args(argv)
+
+    target = args.target
     if os.path.exists(target):
         engine = SentinelEngine(target)
         print("[*] Running Deep Analysis...")
         engine.start_scan()
         engine.save_results()
-    else: print(f"Error: {target} not found.")
+        return 0
+    print(f"Error: {target} not found.")
+    return 1
+
+if __name__ == "__main__":
+    raise SystemExit(main())

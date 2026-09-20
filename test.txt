@@ -1,1 +1,4 @@
-hello github
+Suspicious login from 10.0.0.5
+Callback URL hxxp://c2[.]example[.]test/payload
+Malware hash 44d88612fea8a8f36de82e1278abbb03
+Advisory mentions cve-2024-3094

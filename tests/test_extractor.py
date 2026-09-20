@@ -1,4 +1,6 @@
 import importlib.util
+import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -123,6 +125,25 @@ class SentinelEngineTests(unittest.TestCase):
             report["findings"]["email"],
         )
         self.assertEqual([], report["findings"]["domain"])
+
+    def test_cli_scans_requested_file(self):
+        extractor = load_extractor()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir) / "alert.log"
+            target.write_text("host 10.0.0.5 mentioned CVE-2024-3094", encoding="utf-8")
+
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(tmpdir)
+                self.assertEqual(0, extractor.main([str(target)]))
+                report = json.loads(Path("result.json").read_text(encoding="utf-8"))
+            finally:
+                os.chdir(original_cwd)
+
+        self.assertEqual("alert.log", report["target_file"])
+        self.assertEqual(2, report["summary"]["total_indicators"])
+        self.assertEqual(["CVE-2024-3094"], report["findings"]["cve"])
 
 
 if __name__ == "__main__":

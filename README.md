@@ -64,14 +64,18 @@ ABUSEIPDB_API_KEY=YOUR_API_KEY
 
 The extractor can still parse local IOCs without this key; reputation fields will show that no API key is configured.
 
-Run the Python parser against the sample log:
+Run the Python parser against a local file:
 
 ```bash
 cd python-backend
-python3 extractor.py
+python3 extractor.py ../test.txt
 ```
 
-The sample includes IPv4, IPv6, URL, email, domain, defanged URL/domain, CVE, MD5, SHA1, and SHA256 indicators.
+You can pass any log or text file path:
+
+```bash
+python3 extractor.py /path/to/alert.log
+```
 
 ---
 
