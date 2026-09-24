@@ -77,6 +77,12 @@ You can pass any log or text file path:
 python3 extractor.py /path/to/alert.log
 ```
 
+Choose where to save the JSON report with `--output` (or `-o`):
+
+```bash
+python3 extractor.py /path/to/alert.log --output /path/to/ioc-report.json
+```
+
 ---
 
 ## 📂 Project Structure

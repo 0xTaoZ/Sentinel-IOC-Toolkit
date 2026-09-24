@@ -163,14 +163,15 @@ class SentinelEngine:
             return self.report
         except Exception as e: return {"error": str(e)}
 
-    def save_results(self):
-        with open("result.json", "w") as f:
+    def save_results(self, output_path="result.json"):
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(self.report, f, indent=4)
         print("[+] Analysis complete. JSON report updated with Risk Levels.")
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Extract IOCs from a log or text file.")
     parser.add_argument("target", nargs="?", default="../test.txt", help="file to scan")
+    parser.add_argument("-o", "--output", default="result.json", help="JSON report path")
     args = parser.parse_args(argv)
 
     target = args.target
@@ -178,7 +179,7 @@ def main(argv=None):
         engine = SentinelEngine(target)
         print("[*] Running Deep Analysis...")
         engine.start_scan()
-        engine.save_results()
+        engine.save_results(args.output)
         return 0
     print(f"Error: {target} not found.")
     return 1

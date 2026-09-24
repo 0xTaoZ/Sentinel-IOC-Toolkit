@@ -145,6 +145,21 @@ class SentinelEngineTests(unittest.TestCase):
         self.assertEqual(2, report["summary"]["total_indicators"])
         self.assertEqual(["CVE-2024-3094"], report["findings"]["cve"])
 
+    def test_cli_writes_requested_output_file(self):
+        extractor = load_extractor()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir) / "alert.log"
+            output = Path(tmpdir) / "ioc-report.json"
+            target.write_text("host 10.0.0.5", encoding="utf-8")
+
+            self.assertEqual(0, extractor.main([str(target), "--output", str(output)]))
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual("alert.log", report["target_file"])
+        self.assertEqual(1, report["summary"]["total_indicators"])
+
 
 if __name__ == "__main__":
     unittest.main()
