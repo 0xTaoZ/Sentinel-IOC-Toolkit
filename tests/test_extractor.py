@@ -160,6 +160,43 @@ class SentinelEngineTests(unittest.TestCase):
         self.assertEqual("alert.log", report["target_file"])
         self.assertEqual(1, report["summary"]["total_indicators"])
 
+    def test_cli_can_disable_ip_enrichment(self):
+        extractor = load_extractor()
+
+        class FakeResponse:
+            status_code = 200
+
+            def json(self):
+                return {"data": {"abuseConfidenceScore": 100, "countryCode": "ZZ"}}
+
+        class FakeRequests:
+            @staticmethod
+            def get(url, headers, params):
+                return FakeResponse()
+
+        extractor.API_KEY = "configured-for-test"
+        extractor.requests = FakeRequests()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir) / "alert.log"
+            output = Path(tmpdir) / "ioc-report.json"
+            target.write_text("host 203.0.113.5", encoding="utf-8")
+
+            try:
+                return_code = extractor.main(
+                    [str(target), "--no-enrich", "--output", str(output)]
+                )
+            except SystemExit:
+                self.fail("--no-enrich should be accepted")
+
+            report = json.loads(output.read_text(encoding="utf-8"))
+
+        self.assertEqual(0, return_code)
+        self.assertEqual(
+            {"status": "disabled"},
+            report["findings"]["ipv4"][0]["reputation"],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -96,12 +96,14 @@ def extract_cves(content):
     return matches
 
 class SentinelEngine:
-    def __init__(self, file_path):
+    def __init__(self, file_path, enrich_ips=True):
         self.file_path = file_path
+        self.enrich_ips = enrich_ips
         self.report = {"target_file": os.path.basename(file_path), "findings": {}, "summary": {}}
 
     def check_ip_reputation(self, ip_address):
         """ Fetch reputation data from AbuseIPDB """
+        if not self.enrich_ips: return {"status": "disabled"}
         if not API_KEY: return {"error": "No API Key"}
         if requests is None: return {"error": "requests is not installed"}
         url = 'https://api.abuseipdb.com/api/v2/check'
@@ -172,11 +174,12 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Extract IOCs from a log or text file.")
     parser.add_argument("target", nargs="?", default="../test.txt", help="file to scan")
     parser.add_argument("-o", "--output", default="result.json", help="JSON report path")
+    parser.add_argument("--no-enrich", action="store_true", help="skip AbuseIPDB lookups")
     args = parser.parse_args(argv)
 
     target = args.target
     if os.path.exists(target):
-        engine = SentinelEngine(target)
+        engine = SentinelEngine(target, enrich_ips=not args.no_enrich)
         print("[*] Running Deep Analysis...")
         engine.start_scan()
         engine.save_results(args.output)

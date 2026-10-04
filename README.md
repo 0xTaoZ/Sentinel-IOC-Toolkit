@@ -83,6 +83,15 @@ Choose where to save the JSON report with `--output` (or `-o`):
 python3 extractor.py /path/to/alert.log --output /path/to/ioc-report.json
 ```
 
+Force a network-free scan even when an AbuseIPDB key is configured:
+
+```bash
+python3 extractor.py /path/to/alert.log --no-enrich
+```
+
+The extracted IPv4 entries remain in the report with reputation status set to
+`disabled`.
+
 ---
 
 ## 📂 Project Structure
