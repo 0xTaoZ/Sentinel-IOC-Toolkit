@@ -29,7 +29,8 @@ The project is split into two parts:
 
 ## Current Features
 
-- Extract IP addresses from raw logs
+- Extract IPv4 and IPv6 addresses from raw logs; IPv6 candidates are validated, so compressed forms such as `fe80::1` are kept whole and times or MAC addresses are skipped
+- Deduplicate indicators that differ only in case: domains, hashes, email domains and URL hosts are lowercased, URL paths keep their case
 - Extract bare domains without duplicating hosts already captured as URLs
 - Extract email-address indicators without counting mail domains as separate bare domains
 - Extract CVE identifiers from alert text and normalize them to uppercase

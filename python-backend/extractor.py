@@ -1,3 +1,4 @@
+import ipaddress
 import re
 import json
 import os
@@ -19,7 +20,7 @@ API_KEY = os.getenv("ABUSEIPDB_API_KEY") or os.getenv("ABUSEIPDB_KEY")
 PATTERNS = {
     "ipv4": r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b',
     "ipv6": r'(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:))',
-    "url": r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+[/\w\.-]*',
+    "url": r'[Hh][Tt][Tt][Pp][Ss]?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+[/\w\.-]*',
     "email": r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}\b',
     "domain": r'(?<!://)\b(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,63}\b',
     "md5": r'\b[a-fA-F0-9]{32}\b',
@@ -55,11 +56,33 @@ def is_valid_ipv4(value):
     parts = value.split(".")
     return len(parts) == 4 and all(part.isdigit() and 0 <= int(part) <= 255 for part in parts)
 
-def extract_matches(rule, content):
+def normalize_url(value):
+    """Lowercase the scheme and host; paths stay case-sensitive."""
+    scheme, rest = value.split("://", 1)
+    host, slash, path = rest.partition("/")
+    return f"{scheme.lower()}://{host.lower()}{slash}{path}"
+
+def normalize_email(value):
+    """Lowercase the domain part; the local part is left as written."""
+    local, _, domain = value.rpartition("@")
+    return f"{local}@{domain.lower()}"
+
+# Indicator types whose spelling does not change what they identify.
+NORMALIZERS = {
+    "url": normalize_url,
+    "email": normalize_email,
+    "md5": str.lower,
+    "sha1": str.lower,
+    "sha256": str.lower,
+}
+
+def extract_matches(rule, content, normalize=None):
     matches = []
     seen = set()
     for match in re.finditer(rule, content):
         value = match.group(0)
+        if normalize:
+            value = normalize(value)
         if value not in seen:
             matches.append(value)
             seen.add(value)
@@ -77,12 +100,32 @@ def extract_domains(content):
         start, end = match.span()
         if any(span_start <= start and end <= span_end for span_start, span_end in excluded_spans):
             continue
-        value = match.group(0)
-        if value.rsplit(".", 1)[-1].lower() in FILE_EXTENSION_SUFFIXES:
+        value = match.group(0).lower()
+        if value.rsplit(".", 1)[-1] in FILE_EXTENSION_SUFFIXES:
             continue
         if value not in seen:
             matches.append(value)
             seen.add(value)
+    return matches
+
+IPV6_CANDIDATE = r'(?<![0-9A-Fa-f:])[0-9A-Fa-f:]*:[0-9A-Fa-f:]*(?![0-9A-Fa-f:])'
+
+def extract_ipv6(content):
+    """Validate candidates with ipaddress; the regex alone truncated
+    compressed forms such as 2001:db8::1 to 2001:db8::."""
+    matches = []
+    seen = set()
+    for match in re.finditer(IPV6_CANDIDATE, content):
+        value = match.group(0).lower()
+        if not any(char in "0123456789abcdef" for char in value):
+            continue
+        try:
+            key = ipaddress.IPv6Address(value).compressed
+        except ValueError:
+            continue
+        if key not in seen:
+            matches.append(value)
+            seen.add(key)
     return matches
 
 def extract_cves(content):
@@ -134,10 +177,12 @@ class SentinelEngine:
                 for name, rule in PATTERNS.items():
                     if name == "domain":
                         found = extract_domains(content)
+                    elif name == "ipv6":
+                        found = extract_ipv6(content)
                     elif name == "cve":
                         found = extract_cves(content)
                     else:
-                        found = extract_matches(rule, content)
+                        found = extract_matches(rule, content, NORMALIZERS.get(name))
                     if name == "ipv4":
                         found = [ip for ip in found if is_valid_ipv4(ip)]
                     if name == "ipv4":

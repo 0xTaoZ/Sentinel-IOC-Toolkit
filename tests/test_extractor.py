@@ -96,6 +96,51 @@ class SentinelEngineTests(unittest.TestCase):
 
         self.assertEqual(["staging-c2.example.org"], report["findings"]["domain"])
 
+    def test_deduplicates_indicators_that_differ_only_in_case(self):
+        report = self.scan_text(
+            "\n".join(
+                [
+                    "beacon to C2.Example.ORG and c2.example.org",
+                    "fetch HTTP://Drop.Example.Test/Payload.bin",
+                    "fetch http://drop.example.test/Payload.bin",
+                    "fetch http://drop.example.test/payload.bin",
+                    "mail from Billing@Corp.Example.COM and Billing@corp.example.com",
+                    "md5 44D88612FEA8A8F36DE82E1278ABBB03 and 44d88612fea8a8f36de82e1278abbb03",
+                    "peer 2001:DB8::1 and 2001:db8::1",
+                ]
+            )
+        )
+
+        findings = report["findings"]
+        self.assertEqual(["c2.example.org"], findings["domain"])
+        # Hosts are case-insensitive, paths are not.
+        self.assertEqual(
+            [
+                "http://drop.example.test/Payload.bin",
+                "http://drop.example.test/payload.bin",
+            ],
+            findings["url"],
+        )
+        self.assertEqual(["Billing@corp.example.com"], findings["email"])
+        self.assertEqual(["44d88612fea8a8f36de82e1278abbb03"], findings["md5"])
+        self.assertEqual(["2001:db8::1"], findings["ipv6"])
+
+    def test_ipv6_keeps_compressed_addresses_and_skips_lookalikes(self):
+        report = self.scan_text(
+            "\n".join(
+                [
+                    "peer fe80::1 connected at 10:30:00",
+                    "loopback ::1, gateway 2001:db8:0:0:0:0:0:1 (same as 2001:db8::1)",
+                    "nic aa:bb:cc:dd:ee:ff",
+                ]
+            )
+        )
+
+        self.assertEqual(
+            ["fe80::1", "::1", "2001:db8:0:0:0:0:0:1"],
+            report["findings"]["ipv6"],
+        )
+
     def test_normalizes_defanged_urls_and_domains(self):
         report = self.scan_text(
             "\n".join(
